@@ -1,9 +1,10 @@
+const serverless = require('serverless-http');
 const express = require("express");
 const axios = require('axios');
-
+var cors = require('cors');
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 const websites = ['amazon', 'flipkart', 'snapdeal'];
 
 app.get("/", (req, res) => {
@@ -87,10 +88,10 @@ app.get("/api/mobiles/:website?", async (req, res) => {
 
 });
 
+module.exports.handler = serverless(app);
 
+// const port = process.env.PORT || 3000;
 
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-  console.log(`Listening on port ---${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Listening on port ---${port}`);
+// });
