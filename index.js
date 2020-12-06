@@ -41,7 +41,8 @@ app.get("/api/mobiles/:website?", async (req, res) => {
   // **** API Base URL ****
   const baseURL = "https://aspmsnp3w1.execute-api.ap-south-1.amazonaws.com/Stage/ws";
 
-  // ********** Get Product Details **********
+
+  // **************** Get Product Details *******************
   const productURL = `${baseURL}/product/details?productName=${product}`;
 
   try {
@@ -49,10 +50,11 @@ app.get("/api/mobiles/:website?", async (req, res) => {
     productFinal.product.details = productDetailReponse.data;
   }
   catch (err) {
-    res.send(err.message);
+    console.log("ERROR: .....Product Details...",err);
+    return res.send(err.message);
   }
 
-  // ********** Get Website Offers **********
+  // **************** Get Website Offers ****************
   const offersRequests = selectedWebsites.map(site => axios.get(`${baseURL}/offers/${site}`).catch(err => null));
   try {
     const offersResponse = await axios.all(offersRequests);
@@ -64,21 +66,23 @@ app.get("/api/mobiles/:website?", async (req, res) => {
     });
   }
   catch (err) {
-    res.send(err.message);
+    console.log("ERROR: .....Website Offers...",err);
+    return res.send(err.message);
   }
 
-  // ********** Get Product Prices from Websites **********
+  // **************** Get Product Prices from Websites ****************
   const priceRequests = selectedWebsites.map(site => axios.get(`${baseURL}/product/${site}?productName=${product}`).catch(err => null));
 
   try {
     const priceResponse = await axios.all(priceRequests);
-
+    console.log("62...",  productFinal.product);
     priceResponse.forEach((val, i) => {
       productFinal.product.website[i].price = val.data.price;
     });
   }
   catch (err) {
-    res.send(err.message);
+    console.log("ERROR: .....Product Prices...",err);
+    return res.send(err.message);
   }
 
   // *** Return Response to User ***
@@ -86,6 +90,7 @@ app.get("/api/mobiles/:website?", async (req, res) => {
   res.send(JSON.stringify(productFinal, null, 3));
 
 });
+
 
 
 const port = process.env.PORT || 3000;
