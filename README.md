@@ -5,9 +5,9 @@ Node JS API to crawl the data from different websites for Mobile Phones
 
 ## Introduction
 
-This repository contains the React Redux front-end for the InferTrade tool. You can run the tool with partial features on its own, but you need to also deploy the [infertrade-backend](https://github.com/ProjectOPTimize/infertrade-backend/blob/dev/README.md) node server for full functionality.
+This repository contains the NodeJS API for Crawling Websites to Get Mobile Phones Details.
 
-The main production site is hosted here: http://egainreact.s3-website-us-east-1.amazonaws.com/ , and has the following main features:
+The main site is hosted here: http://egainreact.s3-website-us-east-1.amazonaws.com/ , and has the following main features:
 
 1. Get Product Details by Product Name
 2. View Offers from different Websites
