@@ -19,19 +19,16 @@ app.get("/api/mobiles/:website?", async (req, res) => {
     const website = req.params.website;
     const product = req.query.product;
     
+    if(!website) return res.send("Request Error: Missing Parameter: Website Name");
+    if(!product) return res.send("Request Error: Missing Parameter: product");
+
     axios.all([
       axios.get(`https://aspmsnp3w1.execute-api.ap-south-1.amazonaws.com/Stage/ws/product/details?productName=${product}`),
       axios.get(`https://aspmsnp3w1.execute-api.ap-south-1.amazonaws.com/Stage/ws/product/${website}?productName=${product}`),
       axios.get(`https://aspmsnp3w1.execute-api.ap-south-1.amazonaws.com/Stage/ws/offers/${website}`)
     ]).then(axios.spread((details, website,offers) => {
-      console.log('**************************** details ********************************');
-      console.log(details.data);
-      console.log('**************************** website ********************************');
-      console.log(website.data);
-      console.log('**************************** offers ********************************');
-      console.log(offers.data);
+      
       res.setHeader('Content-Type', 'application/json');
-      let productFinal = {product:{details:{},website:[]}};
       
       res.send(JSON.stringify({...details.data, ...website.data},null,3));
     })).catch(error => {
