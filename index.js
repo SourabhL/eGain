@@ -50,7 +50,6 @@ app.get("/api/mobiles/:website?", async (req, res) => {
     productFinal.product.details = productDetailReponse.data;
   }
   catch (err) {
-    console.log("ERROR: .....Product Details...",err);
     return res.send(err.message);
   }
 
@@ -66,7 +65,6 @@ app.get("/api/mobiles/:website?", async (req, res) => {
     });
   }
   catch (err) {
-    console.log("ERROR: .....Website Offers...",err);
     return res.send(err.message);
   }
 
@@ -75,13 +73,11 @@ app.get("/api/mobiles/:website?", async (req, res) => {
 
   try {
     const priceResponse = await axios.all(priceRequests);
-    console.log("62...",  productFinal.product);
     priceResponse.forEach((val, i) => {
       productFinal.product.website[i].price = val.data.price;
     });
   }
   catch (err) {
-    console.log("ERROR: .....Product Prices...",err);
     return res.send(err.message);
   }
 
