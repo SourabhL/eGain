@@ -10,79 +10,81 @@ app.get("/", (req, res) => {
   res.send("Welcome to Shopping");
 });
 
-// *****
+// ***** Get Product Details and Offers *****
 app.get("/api/mobiles/:website?", async (req, res) => {
-
+  
+  // Set Axios Headers for all get Requests
   axios.defaults.headers.get['Accept'] = 'application/json';
   axios.defaults.headers.get['Accept-Language'] = 'en-us';
-  console.log("req.query.product..." + req.query.product);
-  console.log("req.params.website..." + req.params.website);
 
+  const productFinal = { product: { details: {}, website: [] } };
+
+  // Product name from URL Query Params [Required]
+  const product = req.query.product;
+  
+  // Website name from URL Path Params [Optional]
   const website = req.params.website;
+  
+  if (!product) return res.send("Request Error: Missing Parameter: product");
+
   if (website) {
+    // *** If Invalid Website Name Passed ***
     if (!websites.includes(website)) {
       return res.send("Request Error: Website Data Not Available");
     }
   }
+
+  // *** Website Name, If Specific Website to be Searched for, otherwise Search All Websites ***
   selectedWebsites = website ? [website] : websites;
-  const product = req.query.product;
-  let productFinal = { product: { details: {}, website: [] } };
 
-
-  //if(!website) return res.send("Request Error: Missing Parameter: Website Name");
-  if (!product) return res.send("Request Error: Missing Parameter: product");
 
   // **** API Base URL ****
   const baseURL = "https://aspmsnp3w1.execute-api.ap-south-1.amazonaws.com/Stage/ws";
 
-  // **** Get Product Details ****
+  // ********** Get Product Details **********
   const productURL = `${baseURL}/product/details?productName=${product}`;
 
-  axios.get(productURL).then((details) => {
-    console.log(details.data);
-    productFinal.product.details = details.data;
-    console.log("details...", productFinal);
-  });
-  console.log("---------selectedWebsites-------", selectedWebsites);
-  // **** Get Website Offers ****
-  const offersRequests = selectedWebsites.map(site => axios.get(`${baseURL}/offers/${site}`).catch(err => null));
+  try {
+    const productDetailReponse = await axios.get(productURL);
+    productFinal.product.details = productDetailReponse.data;
+  }
+  catch (err) {
+    res.send(err.message);
+  }
 
-  axios.all(offersRequests).then((response) => {
-    // res.send(JSON.stringify({...details.data, ...website.data},null,3));
-    response.forEach((val, i) => {
-      console.log(i);
-      //console.log(val.request.path.split('/').pop());
-      //console.log(val.data);
+  // ********** Get Website Offers **********
+  const offersRequests = selectedWebsites.map(site => axios.get(`${baseURL}/offers/${site}`).catch(err => null));
+  try {
+    const offersResponse = await axios.all(offersRequests);
+    offersResponse.forEach((val, i) => {
       productFinal.product.website[i] = {
         websitename: val.request.path.split('/').pop(),
         offers: val.data.offers
       }
-      console.log("productFinal 53...", productFinal.product.website);
     });
+  }
+  catch (err) {
+    res.send(err.message);
+  }
 
-  }).catch(error => {
-    console.log(error.response);
-  });
-  // let requestURLs= websites.reduce((acc, site) => {
-  //   return acc.concat( [`${baseURL}/product/${site}?productName=${product}`, `${baseURL}/offers/${site}`]);
-  // }, []);
-  // console.log(requestURLs);
-  // const requests = requestURLs.map(URL => axios.get(URL).catch(err => null));
-  const requests = selectedWebsites.map(site => axios.get(`${baseURL}/product/${site}?productName=${product}`).catch(err => null));
+  // ********** Get Product Prices from Websites **********
+  const priceRequests = selectedWebsites.map(site => axios.get(`${baseURL}/product/${site}?productName=${product}`).catch(err => null));
 
-  // console.log("*************************requests")
-  // console.log(requests);
-  axios.all(requests).then((response) => {
-    console.log('**************************** details ********************************');
+  try {
+    const priceResponse = await axios.all(priceRequests);
 
-    response.forEach((val, i) => {
-      console.log(val.request.path.split('/').pop().split('?')[0]);
-      console.log(val.data);
+    priceResponse.forEach((val, i) => {
       productFinal.product.website[i].price = val.data.price;
     });
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(productFinal, null, 3));
-  });
+  }
+  catch (err) {
+    res.send(err.message);
+  }
+
+  // *** Return Response to User ***
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(productFinal, null, 3));
+
 });
 
 
