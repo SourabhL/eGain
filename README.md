@@ -27,7 +27,7 @@ $ npm install
   Start the server:
 
 ```bash
-$ npm start
+$ node index.js
 ```
 
 ### `npm start`
