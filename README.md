@@ -27,10 +27,10 @@ $ npm install
   Start the server:
 
 ```bash
-$ node index.js
+$ node app.js
 ```
 
-### `npm start`
+### `node app.js`
 
 Runs the app in the development mode.<br>
 Open [http://localhost:5000](http://localhost:5000) to view it in the browser.
